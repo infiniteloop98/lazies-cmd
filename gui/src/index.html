@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Command Alias</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body
+    x-data="{ labels: {
+    commands: 'Commands',
+    alias: 'Alias',
+    command: 'Command',
+    add: 'Add',
+    addCommand: 'Add command',
+    close: 'Close',
+    save: 'Save',
+    actions: 'Actions',
+    update: 'Update',
+    remove: 'Remove'
+  },
+  modals: {
+    add: 'add-command-modal'
+  },
+  commands: []
+ }"
+    x-init="commands = await getCommands()"
+  >
+    <div class="container">
+      <div class="col-12">
+        <div class="row">
+          <div class="col-6">
+            <h1 x-text="labels.commands"></h1>
+          </div>
+          <div class="col-6 text-end align-self-center">
+            <button
+              class="btn btn-success"
+              x-text="labels.add"
+              data-bs-toggle="modal"
+              data-bs-target="#add-command-modal"
+            ></button>
+          </div>
+        </div>
+        <hr />
+      </div>
+      <div class="col-12" id="command-list">
+        <div class="col-12 text-center" id="spinner">
+          <span class="spinner-border spinner-border-sm align-middle"></span>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th x-text="labels.alias"></th>
+              <th x-text="labels.command"></th>
+              <th x-text="labels.actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template
+              x-for="({ alias, command }, index) in commands"
+              :key="index"
+            >
+              <tr>
+                <td x-text="alias"></td>
+                <td x-text="command"></td>
+                <td>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    @click="updateCommand(command)"
+                    x-text="labels.update"
+                  ></button>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    x-text="labels.remove"
+                  ></button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" x-bind:id="modals.add">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" x-text="labels.addCommand"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form @submit.prevent="addCommand($el)">
+            <div class="modal-body">
+              <div class="col-12">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="alias"
+                    name="alias"
+                    x-bind:placeholder="labels.alias"
+                  />
+                  <label for="alias" x-text="labels.alias"></label>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="command"
+                    name="command"
+                    x-bind:placeholder="labels.command"
+                  />
+                  <label for="command" x-text="labels.command"></label>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                x-text="labels.close"
+              ></button>
+              <button class="btn btn-primary" x-text="labels.save"></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script defer src="assets/js/alpine.min.js"></script>
+    <script src="assets/js/scripts.js"></script>
+  </body>
+</html>

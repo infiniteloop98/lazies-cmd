@@ -1,0 +1,3 @@
+APP_PROFILE_DIRECTORY_NAME = 'cmd-doskey-gui'
+DOSKEY_FILE_NAME = 'doskey.bat'
+AUTO_RUN_REGISTRY_NAME = 'AutoRun'
