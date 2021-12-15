@@ -27,16 +27,24 @@ async function getCommands() {
   const { commandList } = state,
     commands = await executePythonScript(state.pythonRootScript, {
       args: ["GET"],
-    });
-  commandList.querySelector("#spinner").classList.add("d-none");
-  return commands.reverse();
+    })
+      .then((result) => {
+        commandList.querySelector("#spinner").classList.add("d-none");
+        return result.reverse();
+      })
+      .catch(onError);
+  return commands;
+
+  function onError(error) {
+    showToast({ title: "Error", message: error }, "error");
+  }
 }
 
 /**
  * Add new command
  * @param {Node} e
  */
-async function addCommand(e) {
+async function createCommand(e) {
   const {
       alias,
       command,
@@ -57,13 +65,15 @@ async function addCommand(e) {
     showToast({ title: "Error", message: "Command is required." }, "error");
     return false;
   }
-  await executePythonScript(
-    state.pythonRootScript,
-    {
-      args: ["CREATE", alias, command, withPrefix, withSuffix],
-    },
-    onAdd
-  );
+  await executePythonScript(state.pythonRootScript, {
+    args: ["CREATE", alias, command, withPrefix, withSuffix],
+  }).then((result) => {
+    result.title ? onError(result) : onAdd(result);
+  });
+
+  function onError({ title, message }) {
+    showToast({ title, message }, "error");
+  }
 
   function onAdd() {
     aliasInput.value = null;
@@ -80,16 +90,11 @@ async function addCommand(e) {
  * @param {String} command
  */
 async function updateCommand(e) {
-  const {
-      alias,
-      command,
-      withPrefix = false,
-      withSuffix = false,
-    } = buildFormData(e),
+  const { alias, command } = buildFormData(e),
     aliasInput = document.getElementById("edit-alias"),
     commandInput = document.getElementById("edit-command"),
-    withPrefixCheckbox = document.getElementById("edit-with-prefix"),
-    withSuffixCheckbox = document.getElementById("edit-with-suffix");
+    withPrefix = document.getElementById("edit-with-prefix"),
+    withSuffix = document.getElementById("edit-with-suffix");
   if (alias === "") {
     aliasInput.focus();
     showToast({ title: "Error", message: "Alias is required." }, "error");
@@ -101,22 +106,46 @@ async function updateCommand(e) {
     return false;
   }
 
-  const response = await executePythonScript(
-    state.pythonRootScript,
-    {
-      args: ["UPDATE", alias, command, withPrefix, withSuffix],
-    },
-    onUpdate
-  );
+  await executePythonScript(state.pythonRootScript, {
+    args: [
+      "UPDATE",
+      alias,
+      command,
+      Boolean(withPrefix.checked),
+      Boolean(withSuffix.checked),
+    ],
+  }).then((result) => {
+    result.title ? onError() : onUpdate();
+  });
+
+  function onError({ title, message }) {
+    showToast({ title, message }, "error");
+  }
 
   function onUpdate() {
-    aliasInput.value = null;
-    commandInput.value = null;
-    withPrefixCheckbox.checked = false;
-    withSuffixCheckbox.checked = false;
     dispatch("command-updated");
   }
   return true;
+}
+
+async function removeCommand(alias) {
+  if (window.confirm("Are your sure?")) {
+    await executePythonScript(state.pythonRootScript, {
+      args: ["REMOVE", alias],
+    }).then((result) => {
+      result.title ? onError() : onUpdate();
+    });
+
+    function onError({ title, message }) {
+      showToast({ title, message }, "error");
+    }
+
+    function onUpdate() {
+      dispatch("command-removed");
+    }
+    return true;
+  }
+  return false;
 }
 
 // End of CURD functions
@@ -162,11 +191,7 @@ function buildFormData(form) {
  * @param {Object} extendedOptions
  * @returns
  */
-async function executePythonScript(
-  fileName,
-  extendedOptions = {},
-  callback = () => {}
-) {
+async function executePythonScript(fileName, extendedOptions = {}) {
   let options = {
     mode: "json",
     ...extendedOptions,
@@ -176,7 +201,6 @@ async function executePythonScript(
     execute.on("message", (result) => {
       return resolve(result);
     });
-    callback();
   });
   return result;
 }

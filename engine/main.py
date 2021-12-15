@@ -11,52 +11,74 @@ def showException(title: str, message: str = ""):
 class App:
     def __init__(self):
         self.arguments = sys.argv
-        action = None
+        self.doskey = Doskey()
         try:
             action = self.arguments[1]
+            if action in ["CREATE", "UPDATE", "REMOVE"] and len(self.arguments) > 1:
+                self.command = self.getArguments()
+            if action == "GET":
+                self.get()
+            elif action == "CREATE":
+                self.create()
+                return
+            elif action == "UPDATE":
+                self.update()
+                return
+            elif action == "REMOVE":
+                self.remove()
+                return
         except IndexError:
-            showException("Action error", "Action not found.")
+            showException("Invalid input", f"Arguments is invalid, code: 101")
         except:
             showException("Unexpected error", "Unknown error!")
-        self.doskey = Doskey()
-        if action in ["CREATE", "UPDATE"] and len(self.arguments) > 1:
-            alias, command, options = self.getArguments()
-            self.alias = alias
-            self.command = command
-            self.options = options
-
-        if action == "GET":
-            self.get()
-            return
-        elif action == "CREATE":
-            self.create()
-            return
-        elif action == "UPDATE":
-            self.update()
-            return
 
     def get(self):
-        commands = json.dumps(self.doskey.get())
-        print(commands)
+        commands = self.doskey.get()
+        print(json.dumps(commands))
 
     def create(self):
-        if self.alias and self.command and self.options:
-            self.doskey.create(self.alias, self.command, self.options)
-            print(json.dumps(True))
+        if self.command:
+            create = self.doskey.create(self.command)
+            if create:
+                print(json.dumps(True))
+                return True
+            else:
+                print(json.dumps({"title": "Invalid command", "message": "Command already exist."}))
+                return False
         print(json.dumps(False))
+        return False
 
     def update(self):
-        if self.alias and self.command and self.options:
-            self.doskey.update(self.alias, self.command, self.options)
+        if self.doskey.update(self.command):
             print(json.dumps(True))
-        print(json.dumps(False))
+            return True
+        print(json.dumps({"title": "Invalid command", "message": "Cannot update command, try again."}))
+        return False
+
+    def remove(self):
+        if self.doskey.remove(self.command["alias"]):
+            print(json.dumps(True))
+            return True
+        print(json.dumps({"title": "Invalid command", "message": "Command not found"}))
+        return False
 
     def getArguments(self):
         alias = self.arguments[2]
-        command = self.arguments[3]
-        with_prefix = True if self.arguments[4] == 'true' else False
-        with_suffix = True if self.arguments[5] == 'true' else False
-        return alias, command, {
+        try:
+            command = self.arguments[3]
+        except:
+            command = None
+        try:
+            with_prefix = json.loads(self.arguments[4])
+        except:
+            with_prefix = False
+        try:
+            with_suffix = json.loads(self.arguments[5])
+        except:
+            with_suffix = False
+        return {
+            "alias": alias,
+            "command": command,
             "with_prefix": with_prefix,
             "with_suffix": with_suffix
         }

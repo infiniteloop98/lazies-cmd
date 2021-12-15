@@ -38,6 +38,7 @@
       commands = await getCommands();
       hideModal(modals.update)
     }"
+    @command-removed="commands = await getCommands()"
   >
     <div class="container">
       <div class="col-12">
@@ -86,7 +87,7 @@
                       <button
                         class="btn btn-primary btn-sm"
                         @click="() => {
-                        selectedCommand = { alias, command, with_prefix, with_suffix }
+                        selectedCommand = { alias, command, with_prefix, with_suffix };
                         showModal(modals.update);
                       }"
                         x-text="labels.update"
@@ -94,6 +95,7 @@
                       <button
                         class="btn btn-danger btn-sm"
                         x-text="labels.remove"
+                        @click="removeCommand(alias)"
                       ></button>
                     </td>
                   </tr>
@@ -123,7 +125,7 @@
               aria-label="Close"
             ></button>
           </div>
-          <form @submit.prevent="addCommand($el)">
+          <form @submit.prevent="createCommand($el)">
             <div class="modal-body">
               <div class="col-12">
                 <div class="form-floating">
@@ -152,13 +154,14 @@
               </div>
 
               <div class="col-12 mt-3">
-                <div class="form-check form-switch form-check-inline">
+                <div class="form-check form-check-inline">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     role="switch"
                     id="with-prefix"
                     name="withPrefix"
+                    value="true"
                   />
                   <label
                     class="form-check-label"
@@ -166,13 +169,14 @@
                     x-text="labels.withPrefix"
                   ></label>
                 </div>
-                <div class="form-check form-switch form-check-inline">
+                <div class="form-check form-check-inline">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     role="switch"
                     id="with-suffix"
                     name="withSuffix"
+                    value="true"
                   />
                   <label
                     class="form-check-label"
@@ -210,86 +214,90 @@
               aria-label="Close"
             ></button>
           </div>
-          <form @submit.prevent="updateCommand($el)">
-            <div class="modal-body">
-              <div class="col-12">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-alias"
-                    name="alias"
-                    x-bind:placeholder="labels.alias"
-                    x-bind:value="selectedCommand.alias"
-                  />
-                  <label for="edit-alias" x-text="labels.alias"></label>
+          <template x-if="Object.keys(selectedCommand).length">
+            <form @submit.prevent="updateCommand($el)">
+              <div class="modal-body">
+                <div class="col-12">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit-alias"
+                      name="alias"
+                      x-bind:placeholder="labels.alias"
+                      x-bind:value="selectedCommand.alias"
+                    />
+                    <label for="edit-alias" x-text="labels.alias"></label>
+                  </div>
                 </div>
-              </div>
 
-              <div class="col-12 mt-3">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="edit-command"
-                    name="command"
-                    x-bind:placeholder="labels.command"
-                    x-bind:value="selectedCommand.command"
-                  />
-                  <label for="edit-command" x-text="labels.command"></label>
+                <div class="col-12 mt-3">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit-command"
+                      name="command"
+                      x-bind:placeholder="labels.command"
+                      x-bind:value="selectedCommand.command"
+                    />
+                    <label for="edit-command" x-text="labels.command"></label>
+                  </div>
                 </div>
-              </div>
 
-              <div class="col-12 mt-3">
-                <div class="form-check form-switch form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="edit-with-prefix"
-                    name="withPrefix"
-                    x-bind:checked="selectedCommand.with_prefix"
-                  />
-                  <label
-                    class="form-check-label"
-                    for="with-prefix"
-                    x-text="labels.withPrefix"
-                  ></label>
-                </div>
-                <div class="form-check form-switch form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="edit-with-suffix"
-                    name="withSuffix"
-                    x-bind:checked="selectedCommand.with_suffix"
-                  />
-                  <label
-                    class="form-check-label"
-                    for="with-suffix"
-                    x-text="labels.withSuffix"
-                  ></label>
+                <div class="col-12 mt-3">
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="edit-with-prefix"
+                      name="withPrefix"
+                      x-bind:checked="selectedCommand.with_prefix"
+                      x-bind:value="selectedCommand.with_prefix"
+                    />
+                    <label
+                      class="form-check-label"
+                      for="with-prefix"
+                      x-text="labels.withPrefix"
+                    ></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="edit-with-suffix"
+                      name="withSuffix"
+                      x-bind:checked="selectedCommand.with_suffix"
+                      x-bind:value="selectedCommand.with_suffix"
+                    />
+                    <label
+                      class="form-check-label"
+                      for="with-suffix"
+                      x-text="labels.withSuffix"
+                    ></label>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-default"
-                data-bs-dismiss="modal"
-                x-text="labels.close"
-              ></button>
-              <button class="btn btn-primary" x-text="labels.update"></button>
-            </div>
-          </form>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  data-bs-dismiss="modal"
+                  x-text="labels.close"
+                ></button>
+                <button class="btn btn-primary" x-text="labels.update"></button>
+              </div>
+            </form>
+          </template>
         </div>
       </div>
     </div>
 
     <!-- End of update command modal -->
-
     <div class="toast-container position-fixed"></div>
+
     <script src="assets/js/bootstrap.min.js"></script>
     <script defer src="assets/js/alpine.min.js"></script>
     <script src="assets/js/scripts.js"></script>

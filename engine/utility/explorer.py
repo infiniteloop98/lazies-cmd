@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 
 def get_user_profile_path(suffix: str = ""):
@@ -40,3 +41,6 @@ def find(path: str, keyword: str):
             return False
     return False
 
+
+def get_root_path():
+    return os.path.abspath(os.curdir)
