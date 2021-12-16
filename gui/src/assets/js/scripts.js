@@ -45,15 +45,9 @@ async function getCommands() {
  * @param {Node} e
  */
 async function createCommand(e) {
-  const {
-      alias,
-      command,
-      withPrefix = false,
-      withSuffix = false,
-    } = buildFormData(e),
+  const { alias, command, withSuffix = false } = buildFormData(e),
     aliasInput = document.getElementById("alias"),
     commandInput = document.getElementById("command"),
-    withPrefixCheckbox = document.getElementById("with-prefix"),
     withSuffixCheckbox = document.getElementById("with-suffix");
   if (alias === "") {
     aliasInput.focus();
@@ -66,7 +60,7 @@ async function createCommand(e) {
     return false;
   }
   await executePythonScript(state.pythonRootScript, {
-    args: ["CREATE", alias, command, withPrefix, withSuffix],
+    args: ["CREATE", alias, command, withSuffix],
   }).then((result) => {
     result.title ? onError(result) : onAdd(result);
   });
@@ -78,7 +72,6 @@ async function createCommand(e) {
   function onAdd() {
     aliasInput.value = null;
     commandInput.value = null;
-    withPrefixCheckbox.checked = false;
     withSuffixCheckbox.checked = false;
     dispatch("command-added");
   }
@@ -90,10 +83,9 @@ async function createCommand(e) {
  * @param {String} command
  */
 async function updateCommand(e) {
-  const { alias, command } = buildFormData(e),
+  const { alias, command, oldAlias } = buildFormData(e),
     aliasInput = document.getElementById("edit-alias"),
     commandInput = document.getElementById("edit-command"),
-    withPrefix = document.getElementById("edit-with-prefix"),
     withSuffix = document.getElementById("edit-with-suffix");
   if (alias === "") {
     aliasInput.focus();
@@ -107,13 +99,7 @@ async function updateCommand(e) {
   }
 
   await executePythonScript(state.pythonRootScript, {
-    args: [
-      "UPDATE",
-      alias,
-      command,
-      Boolean(withPrefix.checked),
-      Boolean(withSuffix.checked),
-    ],
+    args: ["UPDATE", alias, command, Boolean(withSuffix.checked), oldAlias],
   }).then((result) => {
     result.title ? onError() : onUpdate();
   });
@@ -128,8 +114,10 @@ async function updateCommand(e) {
   return true;
 }
 
-async function removeCommand(alias) {
-  if (window.confirm("Are your sure?")) {
+function removeCommand(alias) {
+  showConfirmDialog("Warning!", "Are you sure?", onRemove);
+
+  async function onRemove() {
     await executePythonScript(state.pythonRootScript, {
       args: ["REMOVE", alias],
     }).then((result) => {
@@ -352,4 +340,25 @@ function containMultipleClass(string) {
 
 function hasClass(element, className) {
   return element.classList.contains(className);
+}
+
+function showConfirmDialog(
+  title,
+  text,
+  callback,
+  icon = "warning",
+  buttons = true,
+  dangerMode = true
+) {
+  return swal({
+    title: title,
+    text: text,
+    icon: icon,
+    buttons: buttons,
+    dangerMode: dangerMode,
+  }).then((willDelete) => {
+    if (willDelete) {
+      callback();
+    }
+  });
 }

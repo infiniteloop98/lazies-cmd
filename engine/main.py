@@ -29,7 +29,8 @@ class App:
                 return
         except IndexError:
             showException("Invalid input", f"Arguments is invalid, code: 101")
-        except:
+        except Exception as error:
+            print(error)
             showException("Unexpected error", "Unknown error!")
 
     def get(self):
@@ -69,18 +70,18 @@ class App:
         except:
             command = None
         try:
-            with_prefix = json.loads(self.arguments[4])
-        except:
-            with_prefix = False
-        try:
-            with_suffix = json.loads(self.arguments[5])
+            with_suffix = json.loads(self.arguments[4])
         except:
             with_suffix = False
+        try:
+            old_alias = self.arguments[5]
+        except:
+            old_alias = None
         return {
             "alias": alias,
             "command": command,
-            "with_prefix": with_prefix,
-            "with_suffix": with_suffix
+            "with_suffix": with_suffix,
+            "old_alias": old_alias
         }
 
 

@@ -20,7 +20,9 @@
     remove: 'Remove',
     updateCommand: 'Update command',
     withPrefix: 'With prefix',
-    withSuffix: 'With suffix'
+    withSuffix: 'With suffix',
+    commandHelper: `For execute multiple command separate commands with '$T'`,
+    commandExample: 'Example: e: $T cd my-projects'
   },
   modals: {
     add: 'add-command-modal',
@@ -67,7 +69,6 @@
               <tr>
                 <th x-text="labels.alias"></th>
                 <th x-text="labels.command"></th>
-                <th x-text="labels.withPrefix"></th>
                 <th x-text="labels.withSuffix"></th>
                 <th x-text="labels.actions"></th>
               </tr>
@@ -75,19 +76,18 @@
             <tbody>
               <template x-if="commands.length">
                 <template
-                  x-for="({ alias, command, with_prefix, with_suffix }, index) in commands"
+                  x-for="({ alias, command, with_suffix }, index) in commands"
                   :key="index"
                 >
                   <tr>
                     <td x-text="alias"></td>
                     <td x-text="command"></td>
-                    <td x-text="with_prefix ? 'Yes' : 'No'"></td>
                     <td x-text="with_suffix ? 'Yes' : 'No'"></td>
                     <td>
                       <button
                         class="btn btn-primary btn-sm"
                         @click="() => {
-                        selectedCommand = { alias, command, with_prefix, with_suffix };
+                        selectedCommand = { alias, command, with_suffix };
                         showModal(modals.update);
                       }"
                         x-text="labels.update"
@@ -103,7 +103,7 @@
               </template>
               <template x-if="!commands.length">
                 <tr class="text-center">
-                  <td colspan="5">No Data</td>
+                  <td colspan="4">No Data</td>
                 </tr>
               </template>
             </tbody>
@@ -150,25 +150,14 @@
                     x-bind:placeholder="labels.command"
                   />
                   <label for="command" x-text="labels.command"></label>
+                  <p class="helper-text mt-1 mb-0">
+                    <span x-text="labels.commandHelper"> </span>
+                  </p>
+                  <p class="helper-text" x-text="labels.commandExample"></p>
                 </div>
               </div>
 
               <div class="col-12 mt-3">
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="with-prefix"
-                    name="withPrefix"
-                    value="true"
-                  />
-                  <label
-                    class="form-check-label"
-                    for="with-prefix"
-                    x-text="labels.withPrefix"
-                  ></label>
-                </div>
                 <div class="form-check form-check-inline">
                   <input
                     class="form-check-input"
@@ -217,6 +206,12 @@
           <template x-if="Object.keys(selectedCommand).length">
             <form @submit.prevent="updateCommand($el)">
               <div class="modal-body">
+                <input
+                  type="hidden"
+                  id="old-alias"
+                  name="oldAlias"
+                  x-bind:value="selectedCommand.alias"
+                />
                 <div class="col-12">
                   <div class="form-floating">
                     <input
@@ -242,26 +237,14 @@
                       x-bind:value="selectedCommand.command"
                     />
                     <label for="edit-command" x-text="labels.command"></label>
+                    <p class="helper-text mt-1 mb-0">
+                      <span x-text="labels.commandHelper"> </span>
+                    </p>
+                    <p class="helper-text" x-text="labels.commandExample"></p>
                   </div>
                 </div>
 
                 <div class="col-12 mt-3">
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="edit-with-prefix"
-                      name="withPrefix"
-                      x-bind:checked="selectedCommand.with_prefix"
-                      x-bind:value="selectedCommand.with_prefix"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="with-prefix"
-                      x-text="labels.withPrefix"
-                    ></label>
-                  </div>
                   <div class="form-check form-check-inline">
                     <input
                       class="form-check-input"
@@ -300,6 +283,7 @@
 
     <script src="assets/js/bootstrap.min.js"></script>
     <script defer src="assets/js/alpine.min.js"></script>
+    <script defer src="assets/js/sweetalert.min.js"></script>
     <script src="assets/js/scripts.js"></script>
   </body>
 </html>

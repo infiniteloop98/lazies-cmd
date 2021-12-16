@@ -1,3 +1,3 @@
-APP_PROFILE_DIRECTORY_NAME = 'cmd-doskey-gui'
+APP_PROFILE_DIRECTORY_NAME = 'lazies-cmd'
 DOSKEY_FILE_NAME = 'doskey.bat'
 AUTO_RUN_REGISTRY_NAME = 'AutoRun'
