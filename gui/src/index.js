@@ -12,7 +12,7 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     show: false,
     autoHideMenuBar: true,
-    preload: path.join(__dirname + "/assets/js/preload.js"),
+    icon: path.join(__dirname + "/assets/images/app.ico"),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
