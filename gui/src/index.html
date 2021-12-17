@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <title>Lazies CMD</title>
@@ -25,15 +25,18 @@
     commandExample: 'Example: e: $T cd my-projects',
     donate: 'Donate',
     darkMode: 'Dark mode',
-    lightMode: 'Light mode'
+    lightMode: 'Light mode',
+    noDataAvailable: 'No data available',
+    search: 'Search'
   },
   modals: {
     add: 'add-command-modal',
-    update: 'update-command-modal'
+    update: 'update-command-modal',
+    donate: 'donate-modal'
   },
   commands: [],
   selectedCommand: {}
- }"
+ }; search = ''"
     x-init="commands = await getCommands()"
     @command-added="async () => {
       commands = await getCommands();
@@ -44,9 +47,10 @@
       hideModal(modals.update)
     }"
     @command-removed="commands = await getCommands()"
+    @refresh="commands = await getCommands()"
   >
-    <div class="col-12">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="col-12 shadow-lg">
+      <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">Lazies CMD</a>
           <button
@@ -61,7 +65,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto"></ul>
+            <ul class="navbar-nav me-lg-auto"></ul>
             <ul class="navbar-nav">
               <li class="nav-item align-self-center me-3">
                 <div class="form-check form-switch">
@@ -70,16 +74,20 @@
                     type="checkbox"
                     role="switch"
                     id="theme-switcher"
+                    onchange="handleTheme(event)"
                   />
                   <label
                     class="form-check-label"
                     for="theme-switcher"
-                    x-text="labels.darkMode"
+                    x-text="labels.lightMode"
                   ></label>
                 </div>
               </li>
               <li class="nav-item">
-                <button class="btn btn-success">
+                <button
+                  class="btn btn-primary"
+                  @click="showModal(modals.donate)"
+                >
                   &#128156;
                   <span x-text="labels.donate"></span>
                 </button>
@@ -89,7 +97,7 @@
         </div>
       </nav>
     </div>
-    <div class="container">
+    <div class="container my-5">
       <div class="col-12">
         <div class="row">
           <div class="col-6">
@@ -109,6 +117,28 @@
       <div class="col-12" id="command-list">
         <div class="col-12 text-center" id="spinner">
           <span class="spinner-border spinner-border-sm align-middle"></span>
+        </div>
+        <div class="col-12 my-3">
+          <div class="col-6 ms-auto me-0">
+            <div class="form-floating">
+              <input
+                type="search"
+                class="form-control"
+                id="search-command"
+                x-bind:placeholder="labels.search"
+                x-model="search"
+                @keyup="() => {
+                      if (search.length) {
+                        commands = commands.filter(item => item.alias.indexOf(search) >= 0)
+                        return true;
+                      }
+                      else dispatch('refresh')
+                      return true;
+                    }"
+              />
+              <label for="search-command" x-text="labels.search"></label>
+            </div>
+          </div>
         </div>
         <div class="table responsive">
           <table class="table table-striped table-hover">
@@ -150,7 +180,7 @@
               </template>
               <template x-if="!commands.length">
                 <tr class="text-center">
-                  <td colspan="4">No Data</td>
+                  <td colspan="4" x-text="labels.noDataAvailable"></td>
                 </tr>
               </template>
             </tbody>
@@ -160,7 +190,7 @@
     </div>
 
     <!-- Add command modal -->
-    <div class="modal fade" tabindex="-1" x-bind:id="modals.add">
+    <div class="modal fade text-dark" tabindex="-1" x-bind:id="modals.add">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -238,7 +268,7 @@
     <!-- End of add command modal -->
 
     <!-- Update command modal -->
-    <div class="modal fade" tabindex="-1" x-bind:id="modals.update">
+    <div class="modal fade text-dark" tabindex="-1" x-bind:id="modals.update">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -324,8 +354,55 @@
         </div>
       </div>
     </div>
-
     <!-- End of update command modal -->
+
+    <!-- Donate modal -->
+    <div
+      class="modal fade text-dark"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+      x-bind:id="modals.donate"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5
+              class="modal-title"
+              id="exampleModalLabel"
+              x-text="labels.donate"
+            ></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              <li>Bitcoin - BTC: bc1qtzq68pnjecf00rn4qkejupx0l9jjcaxh33gnd3</li>
+              <li>Dogecoin: DM2iNgwmSY5obYpfEc9w8BhB4cvQ87Lbkz</li>
+              <li>
+                Etherium - ETH: 0x92F2D8D41a919c81a9812B78367F4C82c8Bc18d8
+              </li>
+              <li>Tether - USDT: TM4qiWApB2NyU2epVn5tfUd5ANstMQtkjK</li>
+              <li>Tron - TRX: TM4qiWApB2NyU2epVn5tfUd5ANstMQtkjK</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-default"
+              data-bs-dismiss="modal"
+              x-text="labels.close"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End of donate modal -->
+
     <div class="toast-container position-fixed"></div>
 
     <script src="assets/js/bootstrap.min.js"></script>

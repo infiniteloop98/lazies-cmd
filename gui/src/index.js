@@ -10,8 +10,8 @@ if (require("electron-squirrel-startup")) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 600,
+    show: false,
+    autoHideMenuBar: true,
     preload: path.join(__dirname + "/assets/js/preload.js"),
     webPreferences: {
       nodeIntegration: true,
@@ -19,43 +19,12 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.menuBarVisible = false;
-
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  mainWindow.maximize();
+  mainWindow.show();
 };
-
-const template = [
-  {
-    label: "Edit",
-    submenu: [
-      {
-        role: "undo",
-      },
-      {
-        role: "redo",
-      },
-      {
-        type: "separator",
-      },
-      {
-        role: "cut",
-      },
-      {
-        role: "copy",
-      },
-      {
-        role: "paste",
-      },
-    ],
-  },
-];
-
-// const menu = Menu.buildFromTemplate(template);
-// Menu.setApplicationMenu(null);
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

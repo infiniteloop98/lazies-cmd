@@ -3,7 +3,6 @@ const { PythonShell } = require("python-shell"),
   state = {
     enginePath: path.join(__dirname + `../../../engine`),
     commandList: document.querySelector("#command-list"),
-    addModal: "add-command-modal",
     pythonRootScript: "main.py",
     toastContainer: document.querySelector(".toast-container"),
   };
@@ -15,6 +14,7 @@ PythonShell.defaultOptions = {
 
 window.onload = () => {
   handleSwitch();
+  handleInitialTheme();
 };
 
 //CRUD functions
@@ -114,6 +114,11 @@ async function updateCommand(e) {
   return true;
 }
 
+/**
+ * Remove command
+ * @param {String} alias 
+ * @returns {Boolean}
+ */
 function removeCommand(alias) {
   showConfirmDialog("Warning!", "Are you sure?", onRemove);
 
@@ -140,6 +145,9 @@ function removeCommand(alias) {
 
 // Helper functions
 
+/**
+ * Handle switches value
+ */
 function handleSwitch() {
   const switchs = document.querySelectorAll(
     'input[type="checkbox"].form-check-input'
@@ -210,6 +218,14 @@ function hideModal(modalId) {
   document.querySelector(`#${modalId} .modal-header button.btn-close`).click();
 }
 
+/**
+ * Show toast
+ * @param {Object} content
+ * @param {String} type
+ * @param {BigInteger} delay
+ * @param {String} placement
+ * @returns
+ */
 function showToast(
   content,
   type = "success",
@@ -301,6 +317,11 @@ const buildToastTemplate = (title, body) => {
     <div class="toast-body">${body}</div>`;
 };
 
+/**
+ *
+ * @param {Node} element
+ * @param {Object} attributes
+ */
 function setMultipleAttribute(element, attributes) {
   for (const key in attributes) {
     if (attributes.hasOwnProperty(key))
@@ -308,6 +329,12 @@ function setMultipleAttribute(element, attributes) {
   }
 }
 
+/**
+ *
+ * @param {Node} element
+ * @param {String} classes
+ * @returns {Boolean}
+ */
 function addClass(element, classes) {
   if (containMultipleClass(classes)) {
     const classListArray = classes.split(" ");
@@ -322,6 +349,12 @@ function addClass(element, classes) {
   }
 }
 
+/**
+ *
+ * @param {Node} element
+ * @param {String} classes
+ * @returns {Boolean}
+ */
 function removeClass(element, classes) {
   if (containMultipleClass(classes)) {
     const classListArray = classes.split(" ");
@@ -334,14 +367,35 @@ function removeClass(element, classes) {
   return true;
 }
 
-function containMultipleClass(string) {
-  return string.indexOf(" ");
+/**
+ *
+ * @param {String} classes
+ * @returns {Number}
+ */
+function containMultipleClass(classes) {
+  return classes.indexOf(" ");
 }
 
+/**
+ *
+ * @param {Node} element
+ * @param {String} className
+ * @returns {Boolean}
+ */
 function hasClass(element, className) {
   return element.classList.contains(className);
 }
 
+/**
+ *
+ * @param {String} title
+ * @param {String} text
+ * @param {Function} callback
+ * @param {String} icon
+ * @param {Boolean|Array} buttons
+ * @param {Boolean} dangerMode
+ * @returns {Object}
+ */
 function showConfirmDialog(
   title,
   text,
@@ -361,4 +415,44 @@ function showConfirmDialog(
       callback();
     }
   });
+}
+
+/**
+ *
+ * @param {Node} param0
+ */
+function handleTheme({ target }) {
+  if (target.checked) {
+    document.documentElement.setAttribute("data-theme", "dark");
+    localStorage.setItem("theme", "dark");
+    document.querySelector('label[for="theme-switcher"]').innerText =
+      "Dark mode";
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+    localStorage.setItem("theme", "light");
+    document.querySelector('label[for="theme-switcher"]').innerText =
+      "Light mode";
+  }
+}
+
+/**
+ *
+ * @returns {Boolean}
+ */
+function handleInitialTheme() {
+  const currentTheme = localStorage.getItem("theme"),
+    themeSwitcher = document.getElementById("theme-switcher");
+  if (currentTheme === "dark") {
+    themeSwitcher.checked = true;
+    document.querySelector('label[for="theme-switcher"]').innerText =
+      "Dark mode";
+    document.documentElement.setAttribute("data-theme", "dark");
+    return true;
+  } else {
+    themeSwitcher.checked = false;
+    document.querySelector('label[for="theme-switcher"]').innerText =
+      "Light mode";
+    document.documentElement.setAttribute("data-theme", "light");
+    return true;
+  }
 }
