@@ -29,8 +29,7 @@ class App:
                 return
         except IndexError:
             showException("Invalid input", f"Arguments is invalid, code: 101")
-        except Exception as error:
-            print(error)
+        except:
             showException("Unexpected error", "Unknown error!")
 
     def get(self):
