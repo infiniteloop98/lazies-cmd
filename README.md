@@ -13,7 +13,7 @@ For example: `todo`
 
 # Usage
 1. Clone this repository
-2. Open terminal and go to project directory
+2. Open terminal and go to `lazies-cmd/gui`
 3. Run `npm run make` command
 4. Then open `out/make/*/*` and install app on your device
 5. After app installed successfully copy `engine` folder and go to installed location and open `app-*.*.*/resources` then paste `engine` folder
