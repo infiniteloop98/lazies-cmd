@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, MenuItem } = require("electron"),
+const { app, BrowserWindow } = require("electron"),
   path = require("path");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -12,7 +12,7 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     show: false,
     autoHideMenuBar: true,
-    icon: path.join(__dirname + "/assets/images/app.ico"),
+    icon: path.join(__dirname + "/assets/images/lazy.ico"),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
