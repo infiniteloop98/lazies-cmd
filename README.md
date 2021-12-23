@@ -12,7 +12,6 @@ But we can convert this commands to only one command!
 For example: `todo`
 
 # Usage
-## Windows users:
 1. Clone this repository
 2. Open terminal and go to `lazies-cmd/gui`
 3. Run `npm install` command
